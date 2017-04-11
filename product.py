@@ -30,6 +30,10 @@ class Category:
         context={
             'code': 'product.category',
             },
+        states={
+            'required': Eval('category_sequence', False),
+            },
+        depends=['category_sequence'],
         help='Sequence code used to generate the product code.')
 
     @classmethod
