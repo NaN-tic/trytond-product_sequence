@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<data>
+    <xpath expr="/form/group[@id='checkboxes']" position="inside">
+        <label name="category_sequence"/>
+        <field name="category_sequence" xexpand="0" width="25"/>
+    </xpath>
+    <xpath expr="/form/notebook" position="inside">
+        <page string="Sequence" col="4" id="category_sequence">
+            <label name="product_sequence"/>
+            <field name="product_sequence"/>
+        </page>
+    </xpath>
+</data>
