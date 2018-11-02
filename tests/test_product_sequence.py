@@ -39,7 +39,7 @@ class ProductSequenceTestCase(ModuleTestCase):
                     'category_sequence': True,
                     'product_sequence': sequence1,
                     }])
-        self.assert_(category1.id)
+        self.assertTrue(category1.id)
 
         pt1, pt2 = Template.create([{
                     'name': 'P1',

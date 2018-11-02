@@ -7,8 +7,7 @@ from trytond.pyson import Eval
 __all__ = ['Configuration', 'Category', 'Template', 'Product']
 
 
-class Configuration:
-    __metaclass__ = PoolMeta
+class Configuration(metaclass=PoolMeta):
     __name__ = 'product.configuration'
     product_sequence = fields.Many2One('ir.sequence', 'Sequence', domain=[
             ('code', '=', 'product.category'),
@@ -20,8 +19,7 @@ class Configuration:
         help='Sequence code used to generate the product code.')
 
 
-class Category:
-    __metaclass__ = PoolMeta
+class Category(metaclass=PoolMeta):
     __name__ = 'product.category'
     category_sequence = fields.Boolean('Category Sequence')
     product_sequence = fields.Many2One('ir.sequence', 'Sequence', domain=[
@@ -51,8 +49,7 @@ class Category:
             ]
 
 
-class Template:
-    __metaclass__ = PoolMeta
+class Template(metaclass=PoolMeta):
     __name__ = 'product.template'
     category_sequence = fields.Many2One('product.category', 'Sequence',
         domain=[
@@ -62,8 +59,7 @@ class Template:
         help='Sequence code used to generate the product code.')
 
 
-class Product:
-    __metaclass__ = PoolMeta
+class Product(metaclass=PoolMeta):
     __name__ = 'product.product'
 
     @classmethod
