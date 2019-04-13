@@ -45,7 +45,6 @@ class ProductSequenceTestCase(ModuleTestCase):
                     'name': 'P1',
                     'type': 'goods',
                     'list_price': Decimal(20),
-                    'cost_price': Decimal(10),
                     'default_uom': unit.id,
                     'products': [('create', [{
                                     'code': 'PT1',
@@ -54,7 +53,6 @@ class ProductSequenceTestCase(ModuleTestCase):
                     'name': 'P2',
                     'type': 'goods',
                     'list_price': Decimal(20),
-                    'cost_price': Decimal(10),
                     'default_uom': unit.id,
                     'products': [('create', [{
                                     'description': 'P2',
@@ -70,7 +68,6 @@ class ProductSequenceTestCase(ModuleTestCase):
                     'name': 'P3',
                     'type': 'goods',
                     'list_price': Decimal(20),
-                    'cost_price': Decimal(10),
                     'default_uom': unit.id,
                     'category_sequence': category1,
                     'products': [('create', [{
@@ -80,7 +77,6 @@ class ProductSequenceTestCase(ModuleTestCase):
                     'name': 'P4',
                     'type': 'goods',
                     'list_price': Decimal(20),
-                    'cost_price': Decimal(10),
                     'default_uom': unit.id,
                     'products': [('create', [{
                                     'description': 'P4',
