@@ -4,20 +4,6 @@ from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
 
-__all__ = ['Configuration', 'Category', 'Template', 'Product']
-
-
-class Configuration(metaclass=PoolMeta):
-    __name__ = 'product.configuration'
-    product_sequence = fields.Many2One('ir.sequence', 'Sequence', domain=[
-            ('code', '=', 'product.category'),
-            # ('company', '=', None),
-            ],
-        context={
-            'code': 'product.category',
-            },
-        help='Sequence code used to generate the product code.')
-
 
 class Category(metaclass=PoolMeta):
     __name__ = 'product.category'
@@ -55,75 +41,58 @@ class Template(metaclass=PoolMeta):
         domain=[
             ('category_sequence', '=', True),
             ],
-        depends=['category_sequence'],
+        depends=['category_sequence', 'id'],
         help='Sequence code used to generate the product code.')
+
+    def get_product_sequence(self):
+        pool = Pool()
+        Sequence = pool.get('ir.sequence')
+        if self.category_sequence and self.category_sequence.product_sequence:
+            return Sequence.get_id(self.category_sequence.product_sequence.id)
 
 
 class Product(metaclass=PoolMeta):
     __name__ = 'product.product'
 
     @classmethod
-    def get_product_sequence(cls):
-        pool = Pool()
-        Sequence = pool.get('ir.sequence')
-        Configuration = pool.get('product.configuration')
-
-        config = Configuration(1)
-        if not config.product_sequence:
-            return
-        return Sequence.get_id(config.product_sequence.id)
-
-    @classmethod
     def create(cls, vlist):
-        pool = Pool()
-        Sequence = pool.get('ir.sequence')
-        Template = pool.get('product.template')
-
-        for value in vlist:
-            code = value.get('code', '')
-            if code == '':
-                category_sequence = Template(value['template']).category_sequence
-                if category_sequence and category_sequence.product_sequence:
-                    sequence = Sequence.get_id(
-                        category_sequence.product_sequence.id)
-                else:
-                    sequence = cls.get_product_sequence()
-                if sequence:
-                    value['code'] = sequence
+        for values in vlist:
+            values.update(cls.update_code(values))
         return super(Product, cls).create(vlist)
 
     @classmethod
     def write(cls, *args):
-        pool = Pool()
-        Sequence = pool.get('ir.sequence')
-        Template = pool.get('product.template')
-
         actions = iter(args)
         args = []
         for products, values in zip(actions, actions):
-            if 'code' in values and values['code'] is not None:
-                template = (Template(values['template'])
-                    if values.get('template') else None)
-                for product in products:
-                    category_sequence = (template.category_sequence if template
-                        else product.template.category_sequence)
-                    new_vals = values.copy()
-                    if category_sequence and category_sequence.product_sequence:
-                        sequence = Sequence.get_id(
-                            category_sequence.product_sequence.id)
-                    else:
-                        sequence = cls.get_product_sequence()
-                    if sequence:
-                        new_vals['code'] = sequence
-                    args.extend(([product], new_vals))
-            else:
-                args.extend((products, values))
+            for product in products:
+                args.append([product])
+                args.append(cls.update_code(values, product))
         super(Product, cls).write(*args)
 
     @classmethod
-    def copy(cls, products, default=None):
-        Sequence = Pool().get('ir.sequence')
+    def update_code(cls, values, record=None):
+        pool = Pool()
+        Template = pool.get('product.template')
 
+        if record and not 'code' in values:
+            return values
+
+        if not 'template' in values:
+            if not record:
+                return values
+            template = record.template
+        else:
+            template = Template(values['template'])
+
+        values = values.copy()
+        new_code = template.get_product_sequence()
+        if new_code:
+            values['code'] = new_code
+        return values
+
+    @classmethod
+    def copy(cls, products, default=None):
         if default is None:
             default = {}
         if 'code' in default:
@@ -132,12 +101,7 @@ class Product(metaclass=PoolMeta):
         default = default.copy()
         result = []
         for product in products:
-            if product.template.category_sequence \
-                    and product.template.category_sequence.product_sequence:
-                sequence = Sequence.get_id(
-                    product.template.category_sequence.product_sequence.id)
-            else:
-                sequence = cls.get_product_sequence()
+            sequence = product.template.get_product_sequence()
             if sequence:
                 default['code'] = sequence
             result += super(Product, cls).copy([product], default)

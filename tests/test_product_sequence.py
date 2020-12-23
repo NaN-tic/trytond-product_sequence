@@ -26,18 +26,21 @@ class ProductSequenceTestCase(ModuleTestCase):
                     ('name', '=', 'Unit'),
                     ], limit=1)
 
-        Sequence.create([{
-                    'name': 'PROD',
+        category_sequence, = Sequence.create([{
+                    'name': 'Category',
                     'code': 'product.category',
+                    'prefix': 'CAT',
+                    }])
+        product_sequence, = Sequence.create([{
+                    'name': 'Product',
+                    'code': 'product.product',
                     'prefix': 'PROD',
                     }])
-        sequence1, sequence2 = Sequence.search([
-            ('code', '=', 'product.category')])
 
         category1, = Category.create([{
                     'name': 'Category 1',
                     'category_sequence': True,
-                    'product_sequence': sequence1,
+                    'product_sequence': category_sequence,
                     }])
         self.assertTrue(category1.id)
 
@@ -62,7 +65,7 @@ class ProductSequenceTestCase(ModuleTestCase):
         self.assertEqual(pt2.products[0].code, None)
 
         config = Configuration(1)
-        Configuration.write([config], {'product_sequence': sequence2})
+        Configuration.write([config], {'product_sequence': product_sequence})
 
         pt3, pt4 = Template.create([{
                     'name': 'P3',
@@ -82,7 +85,7 @@ class ProductSequenceTestCase(ModuleTestCase):
                                     'description': 'P4',
                                     }])]
                     }])
-        self.assertEqual(pt3.products[0].code, '1')
+        self.assertEqual(pt3.products[0].code, 'CAT1')
         self.assertEqual(pt4.products[0].code, 'PROD1')
 
 def suite():
