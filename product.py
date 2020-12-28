@@ -75,7 +75,7 @@ class Product(metaclass=PoolMeta):
         pool = Pool()
         Template = pool.get('product.template')
 
-        if record and not 'code' in values:
+        if 'code' in values:
             return values
 
         if not 'template' in values:
@@ -90,19 +90,3 @@ class Product(metaclass=PoolMeta):
         if new_code:
             values['code'] = new_code
         return values
-
-    @classmethod
-    def copy(cls, products, default=None):
-        if default is None:
-            default = {}
-        if 'code' in default:
-            return super(Product, cls).copy(products, default)
-
-        default = default.copy()
-        result = []
-        for product in products:
-            sequence = product.template.get_product_sequence()
-            if sequence:
-                default['code'] = sequence
-            result += super(Product, cls).copy([product], default)
-        return result
