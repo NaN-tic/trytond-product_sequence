@@ -44,6 +44,28 @@ class Template(metaclass=PoolMeta):
         depends=['category_sequence', 'id'],
         help='Sequence code used to generate the product code.')
 
+    @classmethod
+    def write(cls, *args):
+        pool = Pool()
+        Product = pool.get('product.product')
+
+        actions = iter(args)
+        to_update = []
+        for templates, values in zip(actions, actions):
+            if 'category_sequence' in values:
+                to_update += templates
+        super().write(*args)
+
+        to_write = []
+        for template in templates:
+            for product in template.products:
+                values = Product.update_code({}, product)
+                if values:
+                    to_write.append([product])
+                    to_write.append(values)
+        if to_write:
+            Product.write(*to_write)
+
     def get_product_sequence(self):
         pool = Pool()
         Sequence = pool.get('ir.sequence')
