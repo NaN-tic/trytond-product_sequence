@@ -75,7 +75,10 @@ class Product(metaclass=PoolMeta):
         pool = Pool()
         Template = pool.get('product.template')
 
-        if 'code' in values:
+        if values.get('code'):
+            return values
+
+        if record and record.code:
             return values
 
         if not 'template' in values:
@@ -90,3 +93,12 @@ class Product(metaclass=PoolMeta):
         if new_code:
             values['code'] = new_code
         return values
+
+    @classmethod
+    def copy(cls, products, default=None):
+        if default is None:
+            default = {}
+        else:
+            default = default.copy()
+        default.setdefault('code', None)
+        return super().copy(products, default=default)
