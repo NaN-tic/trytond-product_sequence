@@ -4,19 +4,12 @@ msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "field:product.category,category_sequence:"
 msgid "Category Sequence"
-msgstr ""
+msgstr "Secuencia de categoría"
 
-#, fuzzy
 msgctxt "field:product.category,product_sequence:"
 msgid "Sequence"
 msgstr "Secuencia"
 
-#, fuzzy
-msgctxt "field:product.configuration,product_sequence:"
-msgid "Sequence"
-msgstr "Secuencia"
-
-#, fuzzy
 msgctxt "field:product.product,category_sequence:"
 msgid "Sequence"
 msgstr "Secuencia"
@@ -27,26 +20,24 @@ msgstr "Secuencia"
 
 msgctxt "help:product.category,product_sequence:"
 msgid "Sequence code used to generate the product code."
-msgstr ""
-
-msgctxt "help:product.configuration,product_sequence:"
-msgid "Sequence code used to generate the product code."
-msgstr ""
+msgstr "Secuencia para generar el código de producto."
 
 msgctxt "help:product.product,category_sequence:"
 msgid "Sequence code used to generate the product code."
-msgstr ""
+msgstr "Secuencia para generar el código de producto."
 
 msgctxt "help:product.template,category_sequence:"
 msgid "Sequence code used to generate the product code."
 msgstr "Secuencia para generar el código de producto."
 
-#, fuzzy
 msgctxt "model:ir.sequence,name:sequence_product"
 msgid "Product Category"
 msgstr "Categoría de producto"
 
-#, fuzzy
 msgctxt "model:ir.sequence.type,name:sequence_type_product_category"
 msgid "Product Category"
 msgstr "Categoría de producto"
+
+msgctxt "view:product.category:"
+msgid "Sequence"
+msgstr "Secuencia"
