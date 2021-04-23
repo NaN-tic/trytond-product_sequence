@@ -2,17 +2,19 @@
 # copyright notices and license terms.
 from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
-from trytond.pyson import Eval
+from trytond.pyson import Eval, Id
 
 
 class Category(metaclass=PoolMeta):
     __name__ = 'product.category'
     category_sequence = fields.Boolean('Category Sequence')
     product_sequence = fields.Many2One('ir.sequence', 'Sequence', domain=[
-            ('code', '=', 'product.category'),
+            ('sequence_type', '=', Id('product_sequence',
+                    'sequence_type_product_category')),
             ],
         context={
-            'code': 'product.category',
+            'sequence_type': Id('product_sequence',
+                'sequence_type_product_category'),
             },
         states={
             'required': Eval('category_sequence', False),
@@ -67,10 +69,8 @@ class Template(metaclass=PoolMeta):
             Product.write(*to_write)
 
     def get_product_sequence(self):
-        pool = Pool()
-        Sequence = pool.get('ir.sequence')
         if self.category_sequence and self.category_sequence.product_sequence:
-            return Sequence.get_id(self.category_sequence.product_sequence.id)
+            return self.category_sequence.product_sequence.get()
 
 
 class Product(metaclass=PoolMeta):
@@ -97,10 +97,10 @@ class Product(metaclass=PoolMeta):
         pool = Pool()
         Template = pool.get('product.template')
 
-        if values.get('code'):
+        if values.get('suffix_code'):
             return values
 
-        if record and record.code:
+        if record and record.suffix_code:
             return values
 
         if not 'template' in values:
@@ -113,7 +113,7 @@ class Product(metaclass=PoolMeta):
         values = values.copy()
         new_code = template.get_product_sequence()
         if new_code:
-            values['code'] = new_code
+            values['suffix_code'] = new_code
         return values
 
     @classmethod
@@ -122,5 +122,5 @@ class Product(metaclass=PoolMeta):
             default = {}
         else:
             default = default.copy()
-        default.setdefault('code', None)
+        default.setdefault('suffix_code', None)
         return super().copy(products, default=default)

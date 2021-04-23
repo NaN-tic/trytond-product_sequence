@@ -6,6 +6,7 @@ from decimal import Decimal
 import trytond.tests.test_tryton
 from trytond.tests.test_tryton import ModuleTestCase, with_transaction
 from trytond.pool import Pool
+from trytond.pyson import Eval, Id
 
 
 class ProductSequenceTestCase(ModuleTestCase):
@@ -20,20 +21,27 @@ class ProductSequenceTestCase(ModuleTestCase):
         Configuration = pool.get('product.configuration')
         Template = pool.get('product.template')
         Category = pool.get('product.category')
+        SequenceType = pool.get('ir.sequence.type')
         Sequence = pool.get('ir.sequence')
 
         unit, = Uom.search([
                     ('name', '=', 'Unit'),
                     ], limit=1)
 
+        sequence_type, = SequenceType.search([(
+                    'name', '=', 'Product Category',
+                    )], limit=1)
         category_sequence, = Sequence.create([{
                     'name': 'Category',
-                    'code': 'product.category',
+                    'sequence_type': sequence_type,
                     'prefix': 'CAT',
                     }])
+        sequence_type, = SequenceType.search([(
+                    'name', '=', 'Variant',
+                    )], limit=1)
         product_sequence, = Sequence.create([{
                     'name': 'Product',
-                    'code': 'product.product',
+                    'sequence_type': sequence_type,
                     'prefix': 'PROD',
                     }])
 
@@ -50,7 +58,7 @@ class ProductSequenceTestCase(ModuleTestCase):
                     'list_price': Decimal(20),
                     'default_uom': unit.id,
                     'products': [('create', [{
-                                    'code': 'PT1',
+                                    'suffix_code': 'PT1',
                                     }])]
                     }, {
                     'name': 'P2',
@@ -65,7 +73,9 @@ class ProductSequenceTestCase(ModuleTestCase):
         self.assertEqual(pt2.products[0].code, None)
 
         config = Configuration(1)
-        Configuration.write([config], {'product_sequence': product_sequence})
+        Configuration.write([config], {
+            'product_sequence': product_sequence,
+            })
 
         pt3, pt4 = Template.create([{
                     'name': 'P3',

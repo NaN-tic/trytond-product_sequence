@@ -20,7 +20,6 @@
         <!-- sequence -->
         <record model="ir.sequence.type" id="sequence_type_product_category">
             <field name="name">Product Category</field>
-            <field name="code">product.category</field>
         </record>
         <record model="ir.sequence.type-res.group"
                 id="sequence_type_product_category_group_admin">
