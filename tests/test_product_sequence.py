@@ -54,7 +54,6 @@ class ProductSequenceTestCase(ModuleTestCase):
         pt1, pt2 = Template.create([{
                     'name': 'P1',
                     'type': 'goods',
-                    'list_price': Decimal(20),
                     'default_uom': unit.id,
                     'products': [('create', [{
                                     'suffix_code': 'PT1',
@@ -62,7 +61,6 @@ class ProductSequenceTestCase(ModuleTestCase):
                     }, {
                     'name': 'P2',
                     'type': 'goods',
-                    'list_price': Decimal(20),
                     'default_uom': unit.id,
                     'products': [('create', [{
                                     'description': 'P2',
@@ -79,7 +77,6 @@ class ProductSequenceTestCase(ModuleTestCase):
         pt3, pt4 = Template.create([{
                     'name': 'P3',
                     'type': 'goods',
-                    'list_price': Decimal(20),
                     'default_uom': unit.id,
                     'category_sequence': category1,
                     'products': [('create', [{
@@ -88,7 +85,6 @@ class ProductSequenceTestCase(ModuleTestCase):
                     }, {
                     'name': 'P4',
                     'type': 'goods',
-                    'list_price': Decimal(20),
                     'default_uom': unit.id,
                     'products': [('create', [{
                                     'description': 'P4',
