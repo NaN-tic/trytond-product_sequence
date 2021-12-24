@@ -7,20 +7,28 @@ msgid "Category Sequence"
 msgstr "Secuencia de categoría"
 
 msgctxt "field:product.category,product_sequence:"
-msgid "Sequence"
-msgstr "Secuencia"
+msgid "Variant Sequence"
+msgstr "Secuencia de la variante"
+
+msgctxt "field:product.category,template_sequence:"
+msgid "Product Sequence"
+msgstr "Secuencia del producto"
 
 msgctxt "field:product.product,category_sequence:"
-msgid "Sequence"
-msgstr "Secuencia"
+msgid "Category Sequence"
+msgstr "Secuencia de categoría"
 
 msgctxt "field:product.template,category_sequence:"
-msgid "Sequence"
-msgstr "Secuencia"
+msgid "Category Sequence"
+msgstr "Secuencia de categoría"
 
 msgctxt "help:product.category,product_sequence:"
-msgid "Sequence code used to generate the product code."
-msgstr "Secuencia para generar el código de producto."
+msgid "Used to generate the last part of the product code."
+msgstr "Utilizado para generar la parte final del código del producto."
+
+msgctxt "help:product.category,template_sequence:"
+msgid "Used to generate the first part of the product code."
+msgstr "Utilizado para generar la parte inicial del código del producto."
 
 msgctxt "help:product.product,category_sequence:"
 msgid "Sequence code used to generate the product code."
@@ -30,11 +38,11 @@ msgctxt "help:product.template,category_sequence:"
 msgid "Sequence code used to generate the product code."
 msgstr "Secuencia para generar el código de producto."
 
-msgctxt "model:ir.sequence,name:sequence_product"
+msgctxt "model:ir.sequence,name:"
 msgid "Product Category"
 msgstr "Categoría de producto"
 
-msgctxt "model:ir.sequence.type,name:sequence_type_product_category"
+msgctxt "model:ir.sequence.type,name:"
 msgid "Product Category"
 msgstr "Categoría de producto"
 

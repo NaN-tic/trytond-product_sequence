@@ -10,6 +10,8 @@
         <page string="Sequence" col="4" id="category_sequence">
             <label name="product_sequence"/>
             <field name="product_sequence"/>
+            <label name="template_sequence"/>
+            <field name="template_sequence"/>
         </page>
     </xpath>
 </data>
