@@ -49,7 +49,8 @@ class Template(metaclass=PoolMeta):
             ('category_sequence', '=', True),
             ],
         states={
-            'readonly': Bool(Eval('category_sequence', -1)),
+            'readonly': (Bool(Eval('id', -1) >= 0)
+                & Bool(Eval('category_sequence', -1))),
         }, depends=['category_sequence'],
         help="Sequence code used to generate the product code.")
 
