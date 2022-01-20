@@ -115,6 +115,24 @@ class ProductSequenceTestCase(ModuleTestCase):
         self.assertEqual(pt5.products[0].suffix_code, None)
         self.assertEqual(pt5.products[0].code, 'PT1')
 
+        Configuration.write([config], {
+            'template_sequence': None,
+            })
+        pt6, = Template.create([{
+                    'name': 'P6',
+                    'type': 'goods',
+                    'default_uom': unit.id,
+                    'products': [('create', [{
+                                    'description': 'P6',
+                                    }])]
+                    }])
+        self.assertEqual(pt6.products[0].suffix_code, None)
+        self.assertEqual(pt6.products[0].code, None)
+
+        Template.write([pt6], {'category_sequence': cat1})
+        self.assertEqual(pt6.products[0].suffix_code, 'CAT-PP2')
+        self.assertEqual(pt6.products[0].code, 'CAT-PP2')
+
 def suite():
     suite = trytond.tests.test_tryton.suite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(

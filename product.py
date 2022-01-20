@@ -55,8 +55,8 @@ class Template(metaclass=PoolMeta):
             ('category_sequence', '=', True),
             ],
         states={
-            'readonly': Bool(Eval('id', -1) >= 0),
-        }, depends=['id'],
+            'readonly': Bool(Eval('category_sequence', -1)),
+        }, depends=['category_sequence'],
         help="Sequence code used to generate the product code.")
 
     @classmethod
@@ -76,6 +76,31 @@ class Template(metaclass=PoolMeta):
                 category_id = values.get('category_sequence')
                 values['code'] = cls._new_category_code(category_id)
         return super().create(vlist)
+
+    @classmethod
+    def write(cls, *args):
+        pool = Pool()
+        Product = pool.get('product.product')
+
+        actions = iter(args)
+        to_update = []
+        for templates, values in zip(actions, actions):
+            if values.get('category_sequence'):
+                to_update += templates
+        super().write(*args)
+
+        to_write = []
+        for template in to_update:
+            for product in template.products:
+                if product.code or product.suffix_code:
+                    continue
+                new_code = Product._new_category_suffix_code(template.id)
+                if new_code:
+                    values = {'suffix_code': new_code}
+                    to_write.append([product])
+                    to_write.append(values)
+        if to_write:
+            Product.write(*to_write)
 
 
 class Product(metaclass=PoolMeta):
