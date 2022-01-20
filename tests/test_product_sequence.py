@@ -29,34 +29,21 @@ class ProductSequenceTestCase(ModuleTestCase):
         product_sequence_type, = SequenceType.search([(
                     'name', '=', 'Product',
                     )], limit=1)
-        variant_sequence_type, = SequenceType.search([(
-                    'name', '=', 'Variant',
-                    )], limit=1)
-        cat_pt_sequence, cat_pp_sequence, pt_sequence = Sequence.create([{
+        cat_pt_sequence, pt_sequence = Sequence.create([{
                     'name': 'Category Product',
                     'sequence_type': product_sequence_type,
                     'prefix': 'CAT-PT',
-                    }, {
-                    'name': 'Category Variant',
-                    'sequence_type': variant_sequence_type,
-                    'prefix': 'CAT-PP',
                     }, {
                     'name': 'Product',
                     'sequence_type': product_sequence_type,
                     'prefix': 'PT',
                     }])
-        cat1, cat2, = Category.create([{
-                    'name': 'Category PP-PT',
-                    'category_sequence': True,
-                    'product_sequence': cat_pp_sequence,
-                    'template_sequence': cat_pt_sequence,
-                    }, {
+        cat1, = Category.create([{
                     'name': 'Category PT',
                     'category_sequence': True,
                     'template_sequence': cat_pt_sequence,
                     }])
         self.assertTrue(cat1.id)
-        self.assertTrue(cat2.id)
 
         pt1, pt2 = Template.create([{
                     'name': 'P1',
@@ -81,7 +68,7 @@ class ProductSequenceTestCase(ModuleTestCase):
             'template_sequence': pt_sequence,
             })
 
-        pt3, pt4, pt5 = Template.create([{
+        pt3, pt4 = Template.create([{
                     'name': 'P3',
                     'type': 'goods',
                     'default_uom': unit.id,
@@ -93,11 +80,21 @@ class ProductSequenceTestCase(ModuleTestCase):
                     'name': 'P4',
                     'type': 'goods',
                     'default_uom': unit.id,
-                    'category_sequence': cat2,
                     'products': [('create', [{
                                     'description': 'P4',
                                     }])]
-                    }, {
+                    }])
+        self.assertEqual(pt3.code, 'CAT-PT1')
+        self.assertEqual(pt3.products[0].suffix_code, None)
+        self.assertEqual(pt3.products[0].code, 'CAT-PT1')
+        self.assertEqual(pt4.code, 'PT1')
+        self.assertEqual(pt4.products[0].suffix_code, None)
+        self.assertEqual(pt4.products[0].code, 'PT1')
+
+        Configuration.write([config], {
+            'template_sequence': None,
+            })
+        pt5, = Template.create([{
                     'name': 'P5',
                     'type': 'goods',
                     'default_uom': unit.id,
@@ -105,34 +102,13 @@ class ProductSequenceTestCase(ModuleTestCase):
                                     'description': 'P5',
                                     }])]
                     }])
-        self.assertEqual(pt3.code, 'CAT-PT1')
-        self.assertEqual(pt3.products[0].suffix_code, 'CAT-PP1')
-        self.assertEqual(pt3.products[0].code, 'CAT-PT1CAT-PP1')
-        self.assertEqual(pt4.code, 'CAT-PT2')
-        self.assertEqual(pt4.products[0].suffix_code, None)
-        self.assertEqual(pt4.products[0].code, 'CAT-PT2')
-        self.assertEqual(pt5.code, 'PT1')
         self.assertEqual(pt5.products[0].suffix_code, None)
-        self.assertEqual(pt5.products[0].code, 'PT1')
+        self.assertEqual(pt5.products[0].code, None)
 
-        Configuration.write([config], {
-            'template_sequence': None,
-            })
-        pt6, = Template.create([{
-                    'name': 'P6',
-                    'type': 'goods',
-                    'default_uom': unit.id,
-                    'products': [('create', [{
-                                    'description': 'P6',
-                                    }])]
-                    }])
-        self.assertEqual(pt6.products[0].suffix_code, None)
-        self.assertEqual(pt6.products[0].code, None)
-
-        Template.write([pt6], {'category_sequence': cat1})
-        self.assertEqual(pt6.code, 'CAT-PT3')
-        self.assertEqual(pt6.products[0].suffix_code, 'CAT-PP2')
-        self.assertEqual(pt6.products[0].code, 'CAT-PT3CAT-PP2')
+        Template.write([pt5], {'category_sequence': cat1})
+        self.assertEqual(pt5.code, 'CAT-PT2')
+        self.assertEqual(pt5.products[0].suffix_code, None)
+        self.assertEqual(pt5.products[0].code, 'CAT-PT2')
 
 def suite():
     suite = trytond.tests.test_tryton.suite()

@@ -8,11 +8,6 @@ from trytond.pyson import Bool, Eval, Id
 class Category(metaclass=PoolMeta):
     __name__ = 'product.category'
     category_sequence = fields.Boolean("Category Sequence")
-    product_sequence = fields.Many2One('ir.sequence', "Variant Sequence",
-        domain=[
-            ('sequence_type', '=', Id('product', 'sequence_type_product')),
-            ],
-        help="Used to generate the last part of the product code.")
     template_sequence = fields.Many2One('ir.sequence', "Product Sequence",
         domain=[
             ('sequence_type', '=', Id('product', 'sequence_type_template')),
@@ -26,7 +21,6 @@ class Category(metaclass=PoolMeta):
     def __setup__(cls):
         super(Category, cls).__setup__()
         if hasattr(cls, 'accounting'):
-            cls.product_sequence.domain.append(('company', '=', None))
             cls.template_sequence.domain.append(('company', '=', None))
 
     @classmethod
@@ -79,9 +73,6 @@ class Template(metaclass=PoolMeta):
 
     @classmethod
     def write(cls, *args):
-        pool = Pool()
-        Product = pool.get('product.product')
-
         actions = iter(args)
         to_update = []
         to_write = []
@@ -95,37 +86,3 @@ class Template(metaclass=PoolMeta):
             else:
                 to_write.extend((templates, values))
         super().write(*to_write)
-
-        to_write = []
-        for template in to_update:
-            for product in template.products:
-                new_code = Product._new_category_suffix_code(template.id)
-                if new_code:
-                    values = {'suffix_code': new_code}
-                    to_write.append([product])
-                    to_write.append(values)
-        if to_write:
-            Product.write(*to_write)
-
-
-class Product(metaclass=PoolMeta):
-    __name__ = 'product.product'
-
-    @classmethod
-    def _new_category_suffix_code(cls, template_id):
-        pool = Pool()
-        Template = pool.get('product.template')
-        template = Template(template_id)
-        sequence = (template.category_sequence
-            and template.category_sequence.product_sequence)
-        if sequence:
-            return sequence.get()
-
-    @classmethod
-    def create(cls, vlist):
-        vlist = [x.copy() for x in vlist]
-        for values in vlist:
-            if not values.get('suffix_code'):
-                template_id = values.get('template')
-                values['suffix_code'] = cls._new_category_suffix_code(template_id)
-        return super().create(vlist)
