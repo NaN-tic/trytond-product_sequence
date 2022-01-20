@@ -57,7 +57,7 @@ class Template(metaclass=PoolMeta):
         super().write(*args)
 
         to_write = []
-        for template in templates:
+        for template in to_update:
             for product in template.products:
                 values = Product.update_code({}, product)
                 if values:
