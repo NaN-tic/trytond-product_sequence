@@ -130,8 +130,9 @@ class ProductSequenceTestCase(ModuleTestCase):
         self.assertEqual(pt6.products[0].code, None)
 
         Template.write([pt6], {'category_sequence': cat1})
+        self.assertEqual(pt6.code, 'CAT-PT3')
         self.assertEqual(pt6.products[0].suffix_code, 'CAT-PP2')
-        self.assertEqual(pt6.products[0].code, 'CAT-PP2')
+        self.assertEqual(pt6.products[0].code, 'CAT-PT3CAT-PP2')
 
 def suite():
     suite = trytond.tests.test_tryton.suite()

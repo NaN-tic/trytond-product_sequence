@@ -84,16 +84,21 @@ class Template(metaclass=PoolMeta):
 
         actions = iter(args)
         to_update = []
+        to_write = []
         for templates, values in zip(actions, actions):
             if values.get('category_sequence'):
+                category_id = values.get('category_sequence')
+                for template in templates:
+                    values['code'] = cls._new_category_code(category_id)
+                    to_write.extend(([template], values))
                 to_update += templates
-        super().write(*args)
+            else:
+                to_write.extend((templates, values))
+        super().write(*to_write)
 
         to_write = []
         for template in to_update:
             for product in template.products:
-                if product.code or product.suffix_code:
-                    continue
                 new_code = Product._new_category_suffix_code(template.id)
                 if new_code:
                     values = {'suffix_code': new_code}
