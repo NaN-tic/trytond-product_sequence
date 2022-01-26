@@ -2,31 +2,36 @@
 # copyright notices and license terms.
 from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
-from trytond.pyson import Eval, Id
+from trytond.pyson import Bool, Eval, Id
 
 
 class Category(metaclass=PoolMeta):
     __name__ = 'product.category'
-    category_sequence = fields.Boolean('Category Sequence')
-    product_sequence = fields.Many2One('ir.sequence', 'Sequence', domain=[
-            ('sequence_type', '=', Id('product_sequence',
-                    'sequence_type_product_category')),
+    category_sequence = fields.Boolean("Category Sequence")
+    template_sequence = fields.Many2One('ir.sequence', "Product Sequence",
+        domain=[
+            ('sequence_type', '=', Id('product', 'sequence_type_template')),
             ],
-        context={
-            'sequence_type': Id('product_sequence',
-                'sequence_type_product_category'),
-            },
         states={
-            'required': Eval('category_sequence', False),
-            },
-        depends=['category_sequence'],
-        help='Sequence code used to generate the product code.')
+            'required': Bool(Eval('category_sequence')),
+            }, depends=['category_sequence'],
+        help="Used to generate the first part of the product code.")
 
     @classmethod
     def __setup__(cls):
         super(Category, cls).__setup__()
         if hasattr(cls, 'accounting'):
-            cls.product_sequence.domain.append(('company', '=', None))
+            cls.template_sequence.domain.append(('company', '=', None))
+
+    @classmethod
+    def __register__(cls, module_name):
+        table = cls.__table_handler__(module_name)
+
+        # Migration from 5.4: rename product_sequence into template_sequence
+        if (table.column_exist('product_sequence')
+                and not table.column_exist('template_sequence')):
+            table.column_rename('product_sequence', 'template_sequence')
+        super(Category, cls).__register__(module_name)
 
     @classmethod
     def view_attributes(cls):
@@ -39,88 +44,44 @@ class Category(metaclass=PoolMeta):
 
 class Template(metaclass=PoolMeta):
     __name__ = 'product.template'
-    category_sequence = fields.Many2One('product.category', 'Sequence',
+    category_sequence = fields.Many2One('product.category', "Category Sequence",
         domain=[
             ('category_sequence', '=', True),
             ],
-        depends=['category_sequence', 'id'],
-        help='Sequence code used to generate the product code.')
+        states={
+            'readonly': (Bool(Eval('id', -1) >= 0)
+                & Bool(Eval('category_sequence', -1))),
+        }, depends=['category_sequence'],
+        help="Sequence code used to generate the product code.")
 
     @classmethod
-    def write(cls, *args):
-        pool = Pool()
-        Product = pool.get('product.product')
-
-        actions = iter(args)
-        to_update = []
-        for templates, values in zip(actions, actions):
-            if 'category_sequence' in values:
-                to_update += templates
-        super().write(*args)
-
-        to_write = []
-        for template in templates:
-            for product in template.products:
-                values = Product.update_code({}, product)
-                if values:
-                    to_write.append([product])
-                    to_write.append(values)
-        if to_write:
-            Product.write(*to_write)
-
-    def get_product_sequence(self):
-        if self.category_sequence and self.category_sequence.product_sequence:
-            return self.category_sequence.product_sequence.get()
-
-
-class Product(metaclass=PoolMeta):
-    __name__ = 'product.product'
+    def _new_category_code(cls, category_id):
+        Category = Pool().get('product.category')
+        category = Category(category_id)
+        sequence = category.template_sequence
+        if sequence:
+            return sequence.get()
 
     @classmethod
     def create(cls, vlist):
+        vlist = [v.copy() for v in vlist]
         for values in vlist:
-            values.update(cls.update_code(values))
-        return super(Product, cls).create(vlist)
+            values.setdefault('products', None)
+            if not values.get('code') and values.get('category_sequence'):
+                category_id = values.get('category_sequence')
+                values['code'] = cls._new_category_code(category_id)
+        return super().create(vlist)
 
     @classmethod
     def write(cls, *args):
         actions = iter(args)
-        args = []
-        for products, values in zip(actions, actions):
-            for product in products:
-                args.append([product])
-                args.append(cls.update_code(values, product))
-        super(Product, cls).write(*args)
-
-    @classmethod
-    def update_code(cls, values, record=None):
-        pool = Pool()
-        Template = pool.get('product.template')
-
-        if values.get('suffix_code'):
-            return values
-
-        if record and record.suffix_code:
-            return values
-
-        if not 'template' in values:
-            if not record:
-                return values
-            template = record.template
-        else:
-            template = Template(values['template'])
-
-        values = values.copy()
-        new_code = template.get_product_sequence()
-        if new_code:
-            values['suffix_code'] = new_code
-        return values
-
-    @classmethod
-    def copy(cls, products, default=None):
-        if default is None:
-            default = {}
-        else:
-            default = default.copy()
-        default.setdefault('suffix_code', None)
-        return super().copy(products, default=default)
+        to_write = []
+        for templates, values in zip(actions, actions):
+            if values.get('category_sequence'):
+                category_id = values.get('category_sequence')
+                for template in templates:
+                    values['code'] = cls._new_category_code(category_id)
+                    to_write.extend(([template], values))
+            else:
+                to_write.extend((templates, values))
+        super().write(*to_write)

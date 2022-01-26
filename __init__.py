@@ -9,5 +9,4 @@ def register():
     Pool.register(
         product.Category,
         product.Template,
-        product.Product,
         module='product_sequence', type_='model')
