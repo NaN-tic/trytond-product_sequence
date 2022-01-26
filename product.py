@@ -75,7 +75,6 @@ class Template(metaclass=PoolMeta):
     @classmethod
     def write(cls, *args):
         actions = iter(args)
-        to_update = []
         to_write = []
         for templates, values in zip(actions, actions):
             if values.get('category_sequence'):
@@ -83,7 +82,6 @@ class Template(metaclass=PoolMeta):
                 for template in templates:
                     values['code'] = cls._new_category_code(category_id)
                     to_write.extend(([template], values))
-                to_update += templates
             else:
                 to_write.extend((templates, values))
         super().write(*to_write)
