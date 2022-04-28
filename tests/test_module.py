@@ -1,14 +1,13 @@
-# This file is part of the product_sequence module for Tryton.
-# The COPYRIGHT file at the top level of this repository contains the full
-# copyright notices and license terms.
-import unittest
-import trytond.tests.test_tryton
+
+# This file is part of Tryton.  The COPYRIGHT file at the top level of
+# this repository contains the full copyright notices and license terms.
+
 from trytond.tests.test_tryton import ModuleTestCase, with_transaction
 from trytond.pool import Pool
 
 
 class ProductSequenceTestCase(ModuleTestCase):
-    'Test Product Sequence module'
+    'Test ProductSequence module'
     module = 'product_sequence'
 
     @with_transaction()
@@ -110,8 +109,5 @@ class ProductSequenceTestCase(ModuleTestCase):
         self.assertEqual(pt5.products[0].suffix_code, None)
         self.assertEqual(pt5.products[0].code, 'CAT-PT2')
 
-def suite():
-    suite = trytond.tests.test_tryton.suite()
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(
-        ProductSequenceTestCase))
-    return suite
+
+del ModuleTestCase
