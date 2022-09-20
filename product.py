@@ -18,12 +18,6 @@ class Category(metaclass=PoolMeta):
         help="Used to generate the first part of the product code.")
 
     @classmethod
-    def __setup__(cls):
-        super(Category, cls).__setup__()
-        if hasattr(cls, 'accounting'):
-            cls.template_sequence.domain.append(('company', '=', None))
-
-    @classmethod
     def __register__(cls, module_name):
         table = cls.__table_handler__(module_name)
 
