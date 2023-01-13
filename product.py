@@ -79,3 +79,7 @@ class Template(metaclass=PoolMeta):
             else:
                 to_write.extend((templates, values))
         super().write(*to_write)
+
+
+class Product(metaclass=PoolMeta):
+    __name__ = 'product.product'
