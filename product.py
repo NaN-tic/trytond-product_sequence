@@ -14,7 +14,7 @@ class Category(metaclass=PoolMeta):
             ],
         states={
             'required': Bool(Eval('category_sequence')),
-            }, depends=['category_sequence'],
+            },
         help="Used to generate the first part of the product code.")
 
     @classmethod
@@ -45,7 +45,7 @@ class Template(metaclass=PoolMeta):
         states={
             'readonly': (Bool(Eval('id', -1) >= 0)
                 & Bool(Eval('category_sequence', -1))),
-        }, depends=['category_sequence'],
+        },
         help="Sequence code used to generate the product code.")
 
     @classmethod
